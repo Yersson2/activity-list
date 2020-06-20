@@ -288,6 +288,72 @@ const createItem = (activity) => {
         activity: activity,
         state: false
     }
-
     arrayActivity.push(item);
+    return item;
 }
+
+const saveLS = () => {
+    localStorage.setItem('routine', JSON.stringify(arrayActivity));
+    showLS();
+}
+
+const showLS = () => {
+    listActivitys.innerHTML = '';
+    arrayActivity = JSON.parse(localStorage.getItem('routine'));
+    if(arrayActivity === null){
+        arrayActivity = [];
+    }else{
+        arrayActivity.forEach(element => {
+            if(element.state){
+                listActivitys.innerHTML += `<div class="alert alert-success" role="alert"><i class="material-icons float-left mr-2">accessibility</i><b>${ element.activity }</b> - ${ element.state }<span class="float-right"><span class="material-icons">done</span><span class="material-icons">delete</span></span></div>`
+
+            }else{
+                listActivitys.innerHTML += `<div class="alert alert-danger" role="alert"><i class="material-icons float-left mr-2">accessibility</i><b>${ element.activity }</b> - ${ element.state }<span class="float-right"><span class="material-icons">done</span><span class="material-icons">delete</span></span></div>`
+
+            }
+        });
+    }
+}
+
+const deleteLs = (activity) => {
+    let indexArray;
+    arrayActivity.forEach((element, index) => {
+        if(element.activity === activity){
+            indexArray = index;
+        }
+    });
+    arrayActivity.splice(indexArray, 1);
+    saveLS();
+}
+
+const editLs = (activity) => {
+    let indexArray = arrayActivity.findIndex((element) => element.activity === activity);
+    console.log(indexArray);
+    arrayActivity[indexArray].state = true;
+    saveLS();
+    
+}
+
+form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    let activityUi = document.querySelector('#activity').value;
+    createItem(activityUi);
+    saveLS();
+    form.reset();
+});
+
+document.addEventListener('DOMContentLoaded', showLS);
+
+listActivitys.addEventListener('click', (e) => {
+    e.preventDefault();
+
+    if(e.target.innerHTML === 'done' || 'delete'){
+        let text = e.path[2].childNodes[1].innerHTML;
+        if(e.target.innerHTML === 'delete'){
+            deleteLs(text);
+        }
+        if(e.target.innerHTML === 'done'){
+            editLs(text);
+        }
+    }
+})
